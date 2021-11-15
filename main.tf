@@ -3,46 +3,52 @@ variable "name" {
 	default = "cwdevtoolshw4"
 }
 
-data "terraform_remote_state" "app_servers_state" {
-	backend = "s3"
-  config = {
-    region = "ap-southeast-1"
-    bucket = "cwdevtoolshw4"
-    key = "hw4.tfstate"
-  }
-}
-
 data "aws_vpc" "default_vpc" {
   default = true
 }
 
-locals {
-  private_ips_in_cidr_form = [for ip in data.terraform_remote_state.app_servers_state.outputs.instance_private_ips : "${ip}/32"]
+resource "tls_private_key" "private_key" {
+	algorithm = "RSA"
+	rsa_bits = 2048
 }
 
-resource "aws_s3_bucket_public_access_block" "default" {
-  bucket                  = data.terraform_remote_state.app_servers_state.config.bucket
-  block_public_acls       = true
-  ignore_public_acls      = true
-  block_public_policy     = true
-  restrict_public_buckets = true
+resource "local_file" "private_key" {
+	content = tls_private_key.private_key.private_key_pem
+	filename = "server.pem"
+}
+
+resource "aws_key_pair" "server_key" {
+  key_name   = "server"
+  public_key = tls_private_key.private_key.public_key_openssh
 }
 
 resource "aws_security_group" "allow_app_servers" {
 	name = "allow-port-22"
-  vpc_id = data.aws_vpc.default_vpc.id
 
 	ingress {
   from_port = 22
   to_port = 22
   protocol = "tcp"
-  cidr_blocks = local.private_ips_in_cidr_form
+  cidr_blocks = ["58.182.83.212/32"]
+	}
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+	tags = {
+		Name = "allow_app_servers"
 	}
 }
 
 resource "aws_instance" "cw-hw4" {
 	ami = "ami-0f511ead81ccde020"
 	instance_type = "t2.micro"
+	key_name = aws_key_pair.server_key.key_name
+  vpc_security_group_ids = [aws_security_group.allow_app_servers.name]
 
 	tags = {
 		Name = var.name
