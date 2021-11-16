@@ -23,7 +23,7 @@ resource "aws_key_pair" "server_key" {
 }
 
 resource "aws_security_group" "allow_app_servers" {
-	name = "allow-port-22"
+	name = "allow_port_22"
 
 	ingress {
   from_port = 22
@@ -40,7 +40,7 @@ resource "aws_security_group" "allow_app_servers" {
   }
 
 	tags = {
-		Name = "allow_app_servers"
+		Name = "allow_port_22"
 	}
 }
 
