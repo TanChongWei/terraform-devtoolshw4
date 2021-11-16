@@ -5,6 +5,16 @@ Terraform has been utilised to provision the following infrastructure:
 - EC2 instance where the app will be deployed to (and the security group)
 - aws_key_pair referencing a tls_private_key
 
+---
+
+# Running terraform
+Steps: 
+- terraform init
+- terraform plan
+- terrafrom apply (input 'yes' when prompted)
+
+---
+
 # End results
 s3 Buckets:
 
