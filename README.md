@@ -26,7 +26,7 @@ EC2 instance:
 
 Security groups and SSH access:
 
-Note security groups may have different Ids as I made some edits to the instance security protocols to experiment with them
+Note that security groups may have different Ids as I made some edits to the instance security protocols to experiment with them
 
 ![image](https://user-images.githubusercontent.com/72724926/141987253-3112c9d1-fb92-4b9f-9360-c83c51f34716.png)
 
